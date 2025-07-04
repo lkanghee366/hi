@@ -1,0 +1,127 @@
+<style>
+/* YOUR SAVED CSS GOES HERE */
+/* I'll embed the complete CSS you provided */
+</style>
+
+<article class="recipe-container">
+    <!-- Rating Section -->
+    <div class="recipe-rating">
+        <h1>{{ recipe.title }}</h1>
+        <div class="stars">{{ stars }}</div>
+        <div class="rating-text">{{ recipe.rating }} from {{ recipe.review_count }} reviews</div>
+    </div>
+
+    <!-- Metadata Box -->
+    <div class="recipe-metadata">
+        <div class="metadata-title">Recipe Info</div>
+        <div class="metadata-item">
+            <span class="metadata-label">Difficulty Level:</span>
+            <span class="metadata-value">{{ recipe.difficulty }}</span>
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">Prep Time:</span>
+            <span class="metadata-value">{{ recipe.prep_time }} minutes</span>
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">Cook Time:</span>
+            <span class="metadata-value">{{ recipe.cook_time }} minutes</span>
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">Total Time:</span>
+            <span class="metadata-value">{{ recipe.total_time }} minutes</span>
+        </div>
+        <div class="metadata-item">
+            <span class="metadata-label">Servings:</span>
+            <span class="metadata-value">{{ recipe.servings }} people</span>
+        </div>
+    </div>
+
+    <!-- Hero Image -->
+    <div style="text-align: center; margin: 40px 0;">
+        <img src="{{ images.hero.url }}" alt="{{ images.hero.alt }}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    </div>
+
+    <!-- Introduction -->
+    <div class="recipe-intro">
+        <p>{{ recipe.introduction.paragraph1 }}</p>
+        <p>{{ recipe.introduction.paragraph2 }}</p>
+    </div>
+
+    <!-- Ingredients -->
+    <div class="ingredients-section">
+        <div class="content-box ingredients-box">
+            <h2 class="content-title">Ingredients</h2>
+            <ul class="content-list">
+                {% for ingredient in recipe.ingredients %}
+                <li>{{ ingredient }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Ingredients Image -->
+    <div style="text-align: center; margin: 40px 0;">
+        <img src="{{ images.ingredients.url }}" alt="{{ images.ingredients.alt }}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    </div>
+
+    <!-- Steps -->
+    <div class="steps-section">
+        <div class="content-box steps-box">
+            <h2 class="content-title">Instructions</h2>
+            {% for instruction in recipe.instructions %}
+            <div class="step-item">
+                <div class="step-number">{{ loop.index }}</div>
+                <div class="step-content">{{ instruction }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Nutrition Facts -->
+    <div class="nutrition-facts">
+        <div class="nutrition-title">Nutrition Facts</div>
+        <div class="nutrition-servings">Servings per recipe: {{ recipe.servings }}<br>Amount per serving:</div>
+        <div class="nutrition-calories">Calories: {{ recipe.nutrition.calories }}</div>
+        <div class="nutrition-item main">
+            <span>Total Fat</span>
+            <span>{{ recipe.nutrition.total_fat }}</span>
+        </div>
+        <div class="nutrition-item sub">
+            <span>Saturated Fat</span>
+            <span>{{ recipe.nutrition.saturated_fat }}</span>
+        </div>
+        <div class="nutrition-item main">
+            <span>Cholesterol</span>
+            <span>{{ recipe.nutrition.cholesterol }}</span>
+        </div>
+        <div class="nutrition-item main">
+            <span>Sodium</span>
+            <span>{{ recipe.nutrition.sodium }}</span>
+        </div>
+        <div class="nutrition-item main">
+            <span>Total Carbohydrate</span>
+            <span>{{ recipe.nutrition.total_carbs }}</span>
+        </div>
+        <div class="nutrition-item sub">
+            <span>Dietary Fiber</span>
+            <span>{{ recipe.nutrition.fiber }}</span>
+        </div>
+        <div class="nutrition-item sub">
+            <span>Total Sugars</span>
+            <span>{{ recipe.nutrition.sugars }}</span>
+        </div>
+        <div class="nutrition-item main">
+            <span>Protein</span>
+            <span>{{ recipe.nutrition.protein }}</span>
+        </div>
+    </div>
+
+    <!-- Process Image -->
+    <div style="text-align: center; margin: 40px 0;">
+        <img src="{{ images.process.url }}" alt="{{ images.process.alt }}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    </div>
+
+    <!-- Continue with other sections: variations, storage, faqs, tips -->
+    <!-- [Additional sections would follow the same pattern] -->
+
+</article>
