@@ -1,8 +1,8 @@
 import os
 import json
 from datetime import datetime
-from typing import Dict, Optional
-from jinja2 import Template
+from typing import Dict, Optional, List
+from jinja2 import Environment, FileSystemLoader
 
 from services.gemini_service import GeminiService
 from services.pixabay_service import PixabayService
@@ -16,7 +16,11 @@ class RecipeGenerator:
         self.pixabay = PixabayService()
         self.validator = ContentValidator()
         self.file_manager = FileManager()
-    
+        # Tối ưu hóa 1: Tải template một lần duy nhất
+        template_dir = 'templates'
+        self.env = Environment(loader=FileSystemLoader(template_dir))
+        self.template = self.env.get_template('recipe_body.html')
+
     def generate_recipe(self, keyword: str) -> Optional[str]:
         """Main method to generate complete recipe"""
         print(f"🍳 Starting recipe generation for: '{keyword}'")
@@ -84,31 +88,26 @@ class RecipeGenerator:
         
         print(f"🎉 Recipe generated successfully: {filename}")
         return filename
-    
+
     def _generate_stars(self, rating: float) -> str:
         """Generate star display from rating"""
         full_stars = int(rating)
         half_star = 1 if rating % 1 >= 0.5 else 0
         empty_stars = 5 - full_stars - half_star
-        
-        return '★' * full_stars + '☆' * half_star + '☆' * empty_stars
-    
+        # Sử dụng ký tự '½' cho nửa sao
+        return '★' * full_stars + '½' * half_star + '☆' * empty_stars
+
     def _render_template(self, data: Dict) -> Optional[str]:
         """Render HTML template with data"""
         try:
-            template_path = os.path.join('templates', 'recipe_body.html')
-            with open(template_path, 'r', encoding='utf-8') as f:
-                template_content = f.read()
-            
-            template = Template(template_content)
-            return template.render(**data)
-            
+            # Tối ưu hóa 1: Dùng template đã được tải sẵn
+            return self.template.render(**data)
         except Exception as e:
             print(f"❌ Template rendering error: {e}")
             return None
-    
+
     def _log_generation_stats(self, keyword: str, recipe_data: Dict, image_urls: List, filename: str):
-        """Log generation statistics"""
+        """Log generation statistics to console and file"""
         stats = {
             'timestamp': datetime.now().isoformat(),
             'keyword': keyword,
@@ -122,6 +121,7 @@ class RecipeGenerator:
             'difficulty': recipe_data.get('difficulty')
         }
         
+        # In ra console (như cũ)
         print(f"📊 Generation Stats:")
         print(f"   ├── Ingredients: {stats['ingredients_count']}")
         print(f"   ├── Steps: {stats['steps_count']}")
@@ -129,3 +129,11 @@ class RecipeGenerator:
         print(f"   ├── Tips: {stats['tips_count']}")
         print(f"   ├── Images: {stats['images_retrieved']}")
         print(f"   └── Rating: {stats['rating']}/5.0")
+        
+        # Tối ưu hóa 2: Ghi log vào file
+        log_file_path = os.path.join(Config.LOG_DIR, 'generation_log.jsonl')
+        try:
+            with open(log_file_path, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(stats) + '\n')
+        except Exception as e:
+            print(f"⚠️ Could not write to log file: {e}")

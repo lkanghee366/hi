@@ -1,6 +1,7 @@
 import google.generativeai as genai
 import json
 import time
+import re  # Thêm import re
 from typing import Dict, Optional
 from config.settings import Config
 
@@ -33,7 +34,8 @@ class GeminiService:
             return response.text.strip().replace('"', '').replace("'", "")
         except Exception as e:
             print(f"⚠️ Image keyword extraction failed: {e}")
-            return recipe_keyword.split()[:2]  # Fallback to first 2 words
+            # Sửa lỗi: Nối 2 từ đầu tiên thành một
+            return ' '.join(recipe_keyword.split()[:2])
     
     def generate_recipe_content(self, keyword: str) -> Optional[Dict]:
         """Generate complete recipe content structure"""
@@ -165,22 +167,48 @@ class GeminiService:
                 f"Fresh ingredients for {keyword} recipe",
                 f"Step by step {keyword} cooking process"
             ]
-    
+
     def _make_request_with_retry(self, prompt: str) -> Optional[Dict]:
-        """Make Gemini API request with retry logic"""
+        """Make Gemini API request with robust parsing and retry logic."""
         for attempt in range(Config.MAX_RETRIES):
             try:
+                print(f"   └── Making Gemini API request (Attempt {attempt + 1}/{Config.MAX_RETRIES})...")
                 response = self.model.generate_content(prompt)
-                return json.loads(response.text.strip())
+                
+                # ---- BẮT ĐẦU PHẦN CẢI TIẾN ----
+                
+                raw_text = response.text.strip()
+
+                # Làm sạch nội dung nếu nó được bọc trong markdown code block
+                if raw_text.startswith('```json'):
+                    raw_text = re.sub(r'^```json\s*', '', raw_text)
+                    raw_text = re.sub(r'```$', '', raw_text)
+                    raw_text = raw_text.strip()
+
+                # Kiểm tra nếu nội dung bị rỗng sau khi làm sạch
+                if not raw_text:
+                    print(f"⚠️ Warning: Gemini API returned an empty response (Attempt {attempt + 1}).")
+                    raise ValueError("Empty response received from API")
+
+                # Parse JSON
+                return json.loads(raw_text)
+                
+                # ---- KẾT THÚC PHẦN CẢI TIẾN ----
+
             except json.JSONDecodeError as e:
-                print(f"⚠️ JSON parsing error (attempt {attempt + 1}): {e}")
-                if attempt == Config.MAX_RETRIES - 1:
-                    return None
-                time.sleep(2 ** attempt)  # Exponential backoff
+                print(f"⚠️ JSON parsing error (Attempt {attempt + 1}): {e}")
+                print("   └── Gemini did not return a valid JSON. Retrying...")
+                # Không cần trả về None ngay, vòng lặp sẽ tiếp tục
+            
             except Exception as e:
-                print(f"⚠️ Gemini API error (attempt {attempt + 1}): {e}")
-                if attempt == Config.MAX_RETRIES - 1:
-                    return None
-                time.sleep(2 ** attempt)
+                # Bắt các lỗi khác như ValueError từ chuỗi rỗng
+                print(f"⚠️ Gemini API error (Attempt {attempt + 1}): {e}")
+
+            # Nếu không phải lần thử cuối, chờ trước khi thử lại
+            if attempt < Config.MAX_RETRIES - 1:
+                sleep_time = 2 ** (attempt + 1)
+                print(f"   └── Waiting for {sleep_time} seconds before retrying...")
+                time.sleep(sleep_time)
         
+        print("❌ All retry attempts failed. Could not get valid data from Gemini.")
         return None

@@ -23,8 +23,14 @@ def main():
         return
     
     # Create output directories
-    os.makedirs(Config.OUTPUT_DIR, exist_ok=True)
-    os.makedirs(Config.LOG_DIR, exist_ok=True)
+    for path in [Config.OUTPUT_DIR, Config.LOG_DIR]:
+        if os.path.exists(path):
+            if os.path.isfile(path):
+                print(f"❌ Cannot create directory '{path}': a file with the same name exists. Please remove or rename the file.")
+                return
+            # Directory exists, skip creation
+        else:
+            os.makedirs(path, exist_ok=True)
     
     # Initialize generator
     generator = RecipeGenerator()

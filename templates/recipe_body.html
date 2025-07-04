@@ -121,7 +121,49 @@
         <img src="{{ images.process.url }}" alt="{{ images.process.alt }}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
     </div>
 
-    <!-- Continue with other sections: variations, storage, faqs, tips -->
-    <!-- [Additional sections would follow the same pattern] -->
+    <!-- Recipe Variations -->
+    <div class="content-box">
+        <h2 class="content-title">Recipe Variations</h2>
+        {% for variation in recipe.variations %}
+        <div class="variation-item">
+            <h3>{{ variation.title }}</h3>
+            <p>{{ variation.description }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Storage Instructions -->
+    <div class="content-box">
+        <h2 class="content-title">Storage Instructions</h2>
+        {% for section in recipe.storage %}
+        <div class="storage-item">
+            <h3>{{ section.title }}</h3>
+            <p>{{ section.content }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Frequently Asked Questions -->
+    <div class="content-box">
+        <h2 class="content-title">Frequently Asked Questions</h2>
+        {% for faq in recipe.faqs %}
+        <div class="faq-item">
+            <h4>Q: {{ faq.question }}</h4>
+            <p>A: {{ faq.answer }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Professional Tips -->
+    <div class="content-box">
+        <h2 class="content-title">Professional Tips</h2>
+        {% for tip in recipe.tips %}
+        <div class="tip-item">
+            <p>{{ tip }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Continue with other sections if needed -->
 
 </article>
